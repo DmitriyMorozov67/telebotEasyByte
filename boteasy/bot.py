@@ -43,10 +43,11 @@ async def help(update: Update, context: CallbackContext):
 
 async def convert(update: Update, context: CallbackContext):
     text = update.message.text.split()
-    if len(text) == 4 and text[1].isdigit():
+    print(text)
+    if len(text) == 5 and text[1].isdigit():
         amount = round(float(text[1]), 2)
         from_currency = text[2].upper()
-        to_currency = text[3].upper()
+        to_currency = text[4].upper()
 
         url = (f'https://api.apilayer.com/exchangerates_data/'
                f'convert?to={to_currency}&from={from_currency}&amount={amount}')
@@ -56,13 +57,12 @@ async def convert(update: Update, context: CallbackContext):
 
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
-            print(response.json()['info']['rate'])
             rate = response.json()['info']['rate']
             if rate:
                 converted_amount = round(amount * rate, 2)
                 await context.bot.send_message(
                     chat_id=update.effective_chat.id,
-                    text=f'{amount} {from_currency} = {converted_amount}'
+                    text=f'{amount} {from_currency} = {converted_amount} {to_currency}'
                 )
             else:
                 await context.bot.send_message(
@@ -77,7 +77,7 @@ async def convert(update: Update, context: CallbackContext):
     else:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text='Неверный формат команды\nПример: /convert 100 USD EUR'
+            text='Неверный формат команды\nПример: /convert 100 USD to EUR'
         )
 
 
